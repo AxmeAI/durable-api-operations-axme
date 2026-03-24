@@ -166,14 +166,15 @@ No Redis. No polling endpoint. No webhook handler. No cleanup cron. No orphan de
 ## How It Works
 
 ```
-┌──────────┐    POST /generate      ┌──────────────┐                ┌─────────────┐
-│   API     │    returns intent_id   │              │    deliver     │   Report    │
-│  Client   │ ─────────────────────► │  AXME Cloud  │ ─────────────► │  Service    │
-│           │                        │  (platform)  │                │  (agent)    │
-│           │ ◄─── observe(SSE) ───  │              │ ◄── resume()   │             │
-│           │   lifecycle events     │  retries,    │   with result  │  processes  │
-└──────────┘                        │  timeouts    │                └─────────────┘
-                                     └──────────────┘
+┌────────────┐  POST /generate   ┌────────────────┐   deliver    ┌──────────────┐
+│            │ returns intent_id │                │ ──────────>  │              │
+│   API      │ ────────────────> │   AXME Cloud   │              │   Report     │
+│   Client   │                   │   (platform)   │ <─ resume()  │   Service    │
+│            │ <─ observe(SSE) ─ │                │  with result │   (agent)    │
+│            │  lifecycle events │   retries,     │              │              │
+└────────────┘                   │   timeouts     │              │  processes   │
+                                 │                │              │  the report  │
+                                 └────────────────┘              └──────────────┘
 ```
 
 1. FastAPI endpoint receives request, submits an **intent** via AXME SDK
