@@ -9,16 +9,16 @@
  *   mvn compile exec:java -Dexec.mainClass="DurableApiOperations"
  */
 
-import ai.axme.sdk.AxmeClient;
-import ai.axme.sdk.AxmeClientConfig;
+import dev.axme.sdk.AxmeClient;
+import dev.axme.sdk.AxmeClientConfig;
+import dev.axme.sdk.RequestOptions;
+import dev.axme.sdk.ObserveOptions;
 import java.util.Map;
 
 public class DurableApiOperations {
     public static void main(String[] args) throws Exception {
         var client = new AxmeClient(
-            AxmeClientConfig.builder()
-                .apiKey(System.getenv("AXME_API_KEY"))
-                .build()
+            AxmeClientConfig.forCloud(System.getenv("AXME_API_KEY"))
         );
 
         // Submit a durable operation — replaces POST /reports/generate → 202 + job_id
@@ -30,11 +30,11 @@ public class DurableApiOperations {
                 "format", "pdf",
                 "quarter", "Q1-2026"
             )
-        ));
+        ), new RequestOptions());
         System.out.println("Intent submitted: " + intentId);
 
         // Wait for completion — no polling, no webhooks
-        var result = client.waitFor(intentId);
-        System.out.println("Final status: " + result.getStatus());
+        var result = client.waitFor(intentId, new ObserveOptions());
+        System.out.println("Final status: " + result.get("status"));
     }
 }

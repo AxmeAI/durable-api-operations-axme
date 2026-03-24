@@ -8,6 +8,7 @@
 //   dotnet run
 
 using Axme.Sdk;
+using System.Text.Json.Nodes;
 
 var client = new AxmeClient(new AxmeClientConfig
 {
@@ -15,19 +16,19 @@ var client = new AxmeClient(new AxmeClientConfig
 });
 
 // Submit a durable operation — replaces POST /reports/generate → 202 + job_id
-var intentId = await client.SendIntentAsync(new
+var intentId = await client.SendIntentAsync(new JsonObject
 {
-    intent_type = "report.generate.v1",
-    to_agent = "agent://myorg/production/report-service",
-    payload = new
+    ["intent_type"] = "report.generate.v1",
+    ["to_agent"] = "agent://myorg/production/report-service",
+    ["payload"] = new JsonObject
     {
-        report_type = "quarterly",
-        format = "pdf",
-        quarter = "Q1-2026"
+        ["report_type"] = "quarterly",
+        ["format"] = "pdf",
+        ["quarter"] = "Q1-2026"
     }
 });
 Console.WriteLine($"Intent submitted: {intentId}");
 
 // Wait for completion — no polling, no webhooks
 var result = await client.WaitForAsync(intentId);
-Console.WriteLine($"Final status: {result.Status}");
+Console.WriteLine($"Final status: {result["status"]}");

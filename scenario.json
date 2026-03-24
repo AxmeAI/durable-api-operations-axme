@@ -1,0 +1,36 @@
+{
+  "scenario_id": "durable-api-operations.demo.v1",
+  "title": "Durable API operations - report generation via FastAPI",
+  "description": "Client POSTs to /reports/generate, gets intent_id back, observes lifecycle via SSE. No polling endpoint needed.",
+
+  "agents": [
+    {
+      "role": "report_service",
+      "address": "report-api-demo",
+      "display_name": "Report API Service",
+      "delivery_mode": "stream",
+      "create_if_missing": true
+    }
+  ],
+
+  "workflow": {
+    "steps": [
+      {
+        "step_id": "generate_report",
+        "tool_id": "tool.agent.task.v1",
+        "assigned_to": "report_service",
+        "step_deadline_seconds": 120
+      }
+    ]
+  },
+
+  "intent": {
+    "type": "intent.report.generate.v1",
+    "payload": {
+      "report_type": "financial",
+      "format": "pdf",
+      "fiscal_year": "2025"
+    },
+    "max_delivery_attempts": 3
+  }
+}
